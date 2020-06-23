@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.newufosightings.model.Model;
+import it.polito.tdp.newufosightings.model.StateAndNumber;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -52,11 +53,51 @@ public class NewUfoSightingsController {
 	@FXML
 	void doCreaGrafo(ActionEvent event) {
 
+		txtResult.clear();
+		
+		//il controllo su anni l'ho fatto prima che tanto non potrei arrivare qui diversamente
+		
+		if(this.cmbBoxForma.getValue()==null) {
+			txtResult.appendText("ERRORE : Selezionare una Shape!\n");
+			return; 
+		}
+		
+		model.creaGrafo(Integer.parseInt(txtAnno.getText()), cmbBoxForma.getValue());
+		
+		for (StateAndNumber s : this.model.getSommaPesiAdiacentiPerStato()) {
+			txtResult.appendText(s+"\n");
+		}
+		
+		
+		
 	}
 
 	@FXML
 	void doSelezionaAnno(ActionEvent event) {
 
+		txtResult.clear();
+		
+		int year=-1; 
+		if (this.txtAnno.getText().length()==0) {
+			txtResult.appendText("ERRORE : Inserire anno compreso fra 1910-2014 !\n");
+			return; 
+		}
+		
+		try {
+			year= Integer.parseInt(this.txtAnno.getText());
+		}catch(NumberFormatException nfe) {
+			txtResult.appendText("ERRORE : Inserire anno in valori numerici !\n");
+			return; 
+		}
+		if(year<1910 || year >2014) {
+			txtResult.appendText("ERRORE : Inserire anno compreso fra 1910-2014 !\n");
+			return; 
+		}
+		
+		this.cmbBoxForma.getItems().removeAll(this.cmbBoxForma.getItems());
+		this.cmbBoxForma.getItems().addAll(this.model.getShapeByYear(year)); 
+		
+		this.btnCreaGrafo.setDisable(false);
 	}
 
 	@FXML
@@ -79,6 +120,7 @@ public class NewUfoSightingsController {
 
 	public void setModel(Model model) {
 		this.model = model;
+		this.btnCreaGrafo.setDisable(true);
 
 	}
 }
